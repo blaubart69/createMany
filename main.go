@@ -51,6 +51,7 @@ func main() {
 			filenumber := rand.Uint32()
 			filenumbers <- filenumber
 		}
+		close(filenumbers)
 	}()
 
 	go func() {
