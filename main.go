@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand/v2"
 	"os"
 	"runtime"
 	"sync"
@@ -15,7 +16,7 @@ type Stats struct {
 	files uint64
 }
 
-func createFiles(filenumber <-chan int, stats *Stats, wg *sync.WaitGroup) {
+func createFiles(filenumber <-chan uint32, stats *Stats, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for filenumber := range filenumber {
@@ -32,13 +33,12 @@ func createFiles(filenumber <-chan int, stats *Stats, wg *sync.WaitGroup) {
 
 func main() {
 	workers := flag.Int("w", runtime.NumCPU(), "number of workers")
-	startNum := flag.Int("s", 0, "starting number")
 	count := flag.Int("f", 0, "number files to create")
 	flag.Parse()
 
 	var stats Stats
 
-	filenumbers := make(chan int)
+	filenumbers := make(chan uint32)
 
 	var wg sync.WaitGroup
 	for i := 0; i < *workers; i++ {
@@ -47,8 +47,9 @@ func main() {
 	}
 
 	go func() {
-		for i := *startNum; i < (*startNum + *count); i++ {
-			filenumbers <- i
+		for i := 0; i < *count; i++ {
+			filenumber := rand.Uint32()
+			filenumbers <- filenumber
 		}
 	}()
 
